@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 )
 
@@ -36,6 +37,11 @@ func readChunks(file *os.File) []io.Reader {
 	return chunks
 }
 func main() {
+	err := download()
+	if err != nil {
+		panic(err)
+	}
+
 	file, err := os.Open("Lenna.png")
 	if err != nil {
 		panic(err)
@@ -45,4 +51,20 @@ func main() {
 	for _, chunk := range chunks {
 		dumpChunk(chunk)
 	}
+}
+func download() error {
+	resp, err := http.Get("https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png")
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	out, err := os.Create("Lenna.png")
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	return err
 }
