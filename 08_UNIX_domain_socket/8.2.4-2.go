@@ -1,32 +1,38 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
+	"log"
 	"net"
-	"net/http"
-	"net/http/httputil"
 	"os"
 	"path/filepath"
 )
 
 func main() {
-	conn, err := net.Dial("unixgram", filepath.Join(os.TempDir(), "unixdomainsocket-server"))
+	clientPath := filepath.Join(os.TempDir(), "unixdomainsocket-client")
+	os.Remove(clientPath)
+	conn, err := net.ListenPacket("unixgram", clientPath)
 	if err != nil {
 		panic(err)
 	}
-	request, err := http.NewRequest("get", "http://localhost:8888", nil)
+	// 送信先のアドレス
+	unixServerAddr, err := net.ResolveUnixAddr(
+		"unixgram", filepath.Join(os.TempDir(), "unixdomainsocket-server"),
+	)
+	var serverAddr net.Addr = unixServerAddr
 	if err != nil {
 		panic(err)
 	}
-	request.Write(conn)
-	response, err := http.ReadResponse(bufio.NewReader(conn), request)
+	defer conn.Close()
+	log.Println("Sending to server")
+	_, err = conn.WriteTo([]byte("Hello from Client"), serverAddr)
 	if err != nil {
 		panic(err)
 	}
-	dump, err := httputil.DumpResponse(response, true)
+	log.Println("Receiving from server")
+	buffer := make([]byte, 1500)
+	length, _, err := conn.ReadFrom(buffer)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(dump))
+	log.Printf("Received: %s\n", string(buffer[:length]))
 }
