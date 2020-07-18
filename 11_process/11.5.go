@@ -18,6 +18,8 @@ func main() {
 	state := cmd.ProcessState
 	fmt.Printf("%s\n", state.String())
 	fmt.Printf(" Pid: %d\n", state.Pid())
+	fmt.Printf(" Exited: %v\n", state.Exited())
+	fmt.Printf(" Success: %v\n", state.Success())
 	fmt.Printf(" System: %v\n", state.SystemTime())
 	fmt.Printf(" User: %v\n", state.UserTime())
 }
