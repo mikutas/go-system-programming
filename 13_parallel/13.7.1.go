@@ -20,10 +20,13 @@ func main() {
 	// 次の宣言をしてもポインタ型になるだけで正常に動作する
 	// mutex := new(sync.Mutex)
 	var mutex sync.Mutex
-
+	var wg sync.WaitGroup
+	wg.Add(100)
 	for i := 0; i < 100; i++ {
 		go func() {
 			fmt.Printf("id: %d\n", generateId(&mutex))
+			wg.Done()
 		}()
 	}
+	wg.Wait()
 }
