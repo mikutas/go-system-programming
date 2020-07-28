@@ -22,8 +22,9 @@ func (state *helloActor) Receive(context actor.Context) {
 }
 
 func main() {
-	props := actor.FromProducer(func() actor.Actor { return &helloActor{} })
+	props := actor.PropsFromProducer(func() actor.Actor { return &helloActor{} })
 	pid := actor.Spawn(props)
-	pid.Tell(&hello{Who: "Roger"})
+	ctx := actor.EmptyRootContext
+	ctx.Send(pid, &hello{Who: "Roger"})
 	console.ReadLine()
 }
