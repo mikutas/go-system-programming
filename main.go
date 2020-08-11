@@ -66,7 +66,9 @@ func main() {
 			{Type: configs.NEWUTS},
 			{Type: configs.NEWIPC},
 			{Type: configs.NEWPID},
+			{Type: configs.NEWUSER},
 			{Type: configs.NEWNET},
+			{Type: configs.NEWCGROUP},
 		}),
 		Cgroups: &configs.Cgroup{
 			Name:   "test-container",
@@ -123,6 +125,20 @@ func main() {
 				Destination: "/sys",
 				Device:      "sysfs",
 				Flags:       defaultMountFlags | unix.MS_RDONLY,
+			},
+		},
+		UidMappings: []configs.IDMap{
+			{
+				ContainerID: 0,
+				HostID:      1000,
+				Size:        65536,
+			},
+		},
+		GidMappings: []configs.IDMap{
+			{
+				ContainerID: 0,
+				HostID:      1000,
+				Size:        65536,
 			},
 		},
 		Networks: []*configs.Network{
